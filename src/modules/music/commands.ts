@@ -103,4 +103,56 @@ export const commands: SlashCommandPartial[] = [
             },
         ],
     },
+    {
+        name: "replay",
+        description: "Replay the current track from start.",
+    },
+    {
+        name: "volume",
+        description: "View or set volume of the player.",
+        options: [
+            {
+                name: "new",
+                description: "New volume to set if any.",
+                required: false,
+                type: SlashCommandOptionType.INTEGER,
+            },
+        ],
+    },
+    {
+        name: "seek",
+        description: "Change player's track position.",
+        options: [
+            {
+                name: "pos",
+                description: "New Track Position, such as 0:30.",
+                type: SlashCommandOptionType.STRING,
+                required: true,
+            },
+        ],
+    },
+    {
+        name: "forward",
+        description: "Forward player's track position.",
+        options: [
+            {
+                name: "pos",
+                description: "Time to forward track position, such as 0:10.",
+                type: SlashCommandOptionType.STRING,
+                required: true,
+            },
+        ],
+    },
+    {
+        name: "rewind",
+        description: "Rewind player's track position.",
+        options: [
+            {
+                name: "pos",
+                description: "Time to rewind Track Position, such as 0:10.",
+                type: SlashCommandOptionType.STRING,
+                required: true,
+            },
+        ],
+    },
 ];

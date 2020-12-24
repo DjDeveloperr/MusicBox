@@ -43,6 +43,14 @@ export const formatLength = (len: number) => {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 };
 
+export const parseLength = (pos: string): undefined | number => {
+    let spl = pos.split(":").map((e) => e.trim());
+
+    if (spl.length != 2 || isNaN(parseInt(spl[0])) || isNaN(parseInt(spl[1])))
+        return;
+    else return parseInt(spl[0]) * 60 * 1000 + parseInt(spl[1]) * 1000;
+};
+
 export const trackToString = (
     track: TrackInfo,
     user?: User,

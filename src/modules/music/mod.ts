@@ -10,6 +10,7 @@ import {
     createManager,
     createProgress,
     formatLength,
+    parseLength,
     QueueManager,
     QueueTrack,
     trackToString,
@@ -404,6 +405,202 @@ export class MusicSlashModule extends SlashModule {
         que.loopqueue = !que.loopqueue;
         d.respond({
             content: `Loopqueue ${que.loopqueue ? "enabled" : "disabled"}!`,
+        });
+    }
+
+    @slash()
+    async replay(d: Interaction) {
+        const vs = await d.guild.voiceStates.get(d.user.id);
+        if (vs === undefined)
+            return d.respond({
+                type: 3,
+                content: "You're not in any Voice Channel!",
+                temp: true,
+            });
+
+        const que = this.queues.get(d.guild);
+        if (que === undefined || !que.tracks.length)
+            return d.respond({
+                type: 3,
+                content: "I'm not playing anything in this server.",
+                temp: true,
+            });
+
+        await que.player.seek(0);
+        d.respond({ content: "Replaying the track!" });
+    }
+
+    @slash()
+    async volume(d: Interaction) {
+        const vs = await d.guild.voiceStates.get(d.user.id);
+        if (vs === undefined)
+            return d.respond({
+                type: 3,
+                content: "You're not in any Voice Channel!",
+                temp: true,
+            });
+
+        const que = this.queues.get(d.guild);
+        if (que === undefined)
+            return d.respond({
+                type: 3,
+                content: "I'm not playing anything in this server.",
+                temp: true,
+            });
+
+        let newvol = d.option<number>("new");
+        if (newvol === undefined)
+            return d.respond({
+                content: `Volume: ${que.player.volume ?? 100}/100`,
+            });
+
+        if (typeof newvol === "string") newvol = Number(newvol);
+
+        if (newvol < 1 || newvol > 100)
+            return d.respond({
+                type: 3,
+                content: "Volume should be between 1-100.",
+                temp: true,
+            });
+
+        await que.player.setVolume(newvol);
+        d.respond({
+            content: `Set volume to ${newvol}!`,
+        });
+    }
+
+    @slash()
+    async seek(d: Interaction) {
+        const vs = await d.guild.voiceStates.get(d.user.id);
+        if (vs === undefined)
+            return d.respond({
+                type: 3,
+                content: "You're not in any Voice Channel!",
+                temp: true,
+            });
+
+        const que = this.queues.get(d.guild);
+        if (que === undefined)
+            return d.respond({
+                type: 3,
+                content: "I'm not playing anything in this server.",
+                temp: true,
+            });
+
+        const len = parseLength(d.option<string>("pos"));
+        if (!len || len < 0 || len > (que.tracks[0]?.info.length ?? 0))
+            return d.respond({
+                type: 3,
+                content:
+                    "Invalid seek position! Max track length is `" +
+                    formatLength(que.tracks[0]?.info.length ?? 0) +
+                    "`.",
+                temp: true,
+            });
+
+        await que.player.seek(len);
+        d.respond({
+            content: `Successfully jumped to position: \`${formatLength(
+                len
+            )}\`!`,
+        });
+    }
+
+    @slash()
+    async forward(d: Interaction) {
+        const vs = await d.guild.voiceStates.get(d.user.id);
+        if (vs === undefined)
+            return d.respond({
+                type: 3,
+                content: "You're not in any Voice Channel!",
+                temp: true,
+            });
+
+        const que = this.queues.get(d.guild);
+        if (que === undefined)
+            return d.respond({
+                type: 3,
+                content: "I'm not playing anything in this server.",
+                temp: true,
+            });
+
+        let len = parseLength(d.option<string>("pos"));
+        if (!len)
+            return d.respond({
+                type: 3,
+                temp: true,
+                content: `Invalid time format given! Format is \`<mins>:<secs>\`, like \`1:30\`.`,
+            });
+        len = len + que.player.position;
+
+        if (len < 0 || len > (que.tracks[0]?.info.length ?? 0))
+            return d.respond({
+                type: 3,
+                content:
+                    "Invalid forward time! Max track length is `" +
+                    formatLength(que.tracks[0]?.info.length ?? 0) +
+                    "`.",
+                temp: true,
+            });
+
+        await que.player.seek(len);
+        d.respond({
+            content: `Successfully forwarded and jumped to position: \`${formatLength(
+                len
+            )}\`!`,
+        });
+    }
+
+    @slash()
+    async rewind(d: Interaction) {
+        const vs = await d.guild.voiceStates.get(d.user.id);
+        if (vs === undefined)
+            return d.respond({
+                type: 3,
+                content: "You're not in any Voice Channel!",
+                temp: true,
+            });
+
+        const que = this.queues.get(d.guild);
+        if (que === undefined)
+            return d.respond({
+                type: 3,
+                content: "I'm not playing anything in this server.",
+                temp: true,
+            });
+
+        let len = parseLength(d.option<string>("pos"));
+        if (!len)
+            return d.respond({
+                type: 3,
+                temp: true,
+                content: `Invalid time format given! Format is \`<mins>:<secs>\`, like \`1:30\`.`,
+            });
+
+        len = que.player.position - len;
+
+        // if (len < 0) len = 0;
+        // if (
+        //     que.tracks[0].info.length &&
+        //     len > (que.tracks[0]?.info.length ?? 0)
+        // )
+        //     len = que.tracks[0].info.length;
+
+        if (len < 0 || len > (que.tracks[0]?.info.length ?? 0))
+            return d.respond({
+                type: 3,
+                content:
+                    "Invalid forward time! Max track length is `" +
+                    formatLength(que.tracks[0]?.info.length ?? 0) +
+                    "`.",
+                temp: true,
+            });
+
+        await que.player.seek(len);
+        d.respond({
+            content: `Successfully rewinded and jumped to position: \`${formatLength(
+                len
+            )}\`!`,
         });
     }
 }
