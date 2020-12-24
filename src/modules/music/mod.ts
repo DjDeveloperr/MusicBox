@@ -30,7 +30,7 @@ export class MusicSlashModule extends SlashModule {
     @slash()
     async join(d: Interaction) {
         const vs = await d.guild.voiceStates.get(d.user.id);
-        if (vs === undefined)
+        if (vs === undefined || !vs.channelID)
             return d.respond({
                 type: 3,
                 content: "You're not in any Voice Channel!",
@@ -44,6 +44,12 @@ export class MusicSlashModule extends SlashModule {
                 content: "I'm already in VC in this server.",
                 temp: true,
             });
+
+        const q = this.queues.add(d.guild);
+        await q.player.connect(vs.channelID, { selfDeaf: true });
+        d.respond({
+            content: `Joined \`${vs.channel?.name}\`!`,
+        });
     }
 
     @slash()

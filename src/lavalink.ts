@@ -1,10 +1,11 @@
 import { Manager, Client, Collection, Guild, Player } from "../deps.ts";
 import { config } from "./config.ts";
 import type { MusicSlashModule } from "./modules/music/mod.ts";
+import { log } from "./util/log.ts";
 
 export const nodes = [
     {
-        id: "main",
+        id: "master",
         host: config.lavalink.host,
         port: config.lavalink.port,
         password: config.lavalink.password,
@@ -74,6 +75,7 @@ export class Queue {
     current: string | null = null;
     autoplay: boolean = true;
     loopqueue: boolean = false;
+    _lastSkipped?: QueueTrack;
 
     constructor(guild: Guild, player: Player) {
         this.guild = guild;
@@ -81,12 +83,22 @@ export class Queue {
 
         this.player.on("start", (evt) => {
             this.current = evt.track;
+            if (this.tracks.length === 0)
+                return log("Track", "Started but not in queue");
+            log("Track", `Start - ${this.tracks[0].info.title}`);
         });
 
         this.player.on("end", () => {
             this.current = null;
             const track = this.tracks.shift();
+            log("Track", `End - ${track?.info.title}`);
             if (this.loopqueue && track !== undefined) this.tracks.push(track);
+
+            if (this._lastSkipped) {
+                this._lastSkipped = undefined;
+                this.player.pause(false);
+                return;
+            }
 
             if (this.autoplay) {
                 this.play();
@@ -106,16 +118,19 @@ export class Queue {
             .then((q) => q.tracks);
     }
 
-    async play(): Promise<Queue> {
+    async play(track?: QueueTrack): Promise<Queue> {
         if (this.tracks.length !== 0) {
-            this.player.play(this.tracks[0].track);
+            await this.player.play(track ?? this.tracks[0].track);
         }
         return this;
     }
 
     async skip(): Promise<Queue> {
-        this.tracks.shift();
-        if (this.tracks.length !== 0) await this.play();
+        if (this.tracks[1] === undefined) return this;
+        const track = this.tracks[1];
+        this._lastSkipped = track;
+        log("Track", `Skip - ${track.info.title}`);
+        await this.play(track);
         return this;
     }
 }
