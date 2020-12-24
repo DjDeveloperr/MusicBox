@@ -1,4 +1,13 @@
-import { Manager, Client, Collection, Guild, Player } from "../deps.ts";
+import {
+    Manager,
+    Client,
+    Collection,
+    Guild,
+    Player,
+    User,
+    LoadTracksResponse,
+    Track,
+} from "../deps.ts";
 import { config } from "./config.ts";
 import type { MusicSlashModule } from "./modules/music/mod.ts";
 import { log } from "./util/log.ts";
@@ -34,10 +43,16 @@ export const formatLength = (len: number) => {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 };
 
-export const trackToString = (track: TrackInfo) => {
+export const trackToString = (
+    track: TrackInfo,
+    user?: User,
+    loop?: boolean
+) => {
     return `[\`${track.title.replace(/`/g, "")}\`](<${
         track.uri
-    }>) - ${track.author.replace(/`/g, "")} - ${formatLength(track.length)}`;
+    }>) - ${track.author.replace(/`/g, "")} - \`${formatLength(
+        track.length
+    )}\`${user ? ` - ${user.tag}${loop ? " (Loop)" : ""}` : ""}`;
 };
 
 const BLUE_SQ = "🟦";
@@ -53,7 +68,7 @@ export const createProgress = (c: number, m: number) => {
 };
 
 export const ytThumb = (id: string) => {
-    return `https://img.youtube.com/vi/${id}/default.jpg`;
+    return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
 };
 
 export interface TrackInfo {
@@ -70,6 +85,8 @@ export interface TrackInfo {
 export interface QueueTrack {
     track: string;
     info: TrackInfo;
+    by: User;
+    loop?: boolean;
 }
 
 export class Queue {
@@ -89,7 +106,9 @@ export class Queue {
             this.current = evt.track;
             if (this.tracks.length === 0)
                 return log("Track", "Started but not in queue");
+
             log("Track", `Start - ${this.tracks[0].info.title}`);
+
             if (this.guild.id == config.mainGuild) {
                 this.guild.client.setPresence({
                     name: this.tracks[0].info.title,
@@ -109,7 +128,10 @@ export class Queue {
             this.current = null;
             const track = this.tracks.shift();
             log("Track", `End - ${track?.info.title}`);
-            if (this.loopqueue && track !== undefined) this.tracks.push(track);
+            if (this.loopqueue && track !== undefined) {
+                track.loop = true;
+                this.tracks.push(track);
+            }
 
             if (this._lastSkipped) {
                 this._lastSkipped = undefined;
@@ -129,7 +151,7 @@ export class Queue {
         return this;
     }
 
-    async search(q: string): Promise<QueueTrack[]> {
+    async search(q: string): Promise<Track[]> {
         return this.player.manager
             .search(`ytsearch:${q}`)
             .then((q) => q.tracks);

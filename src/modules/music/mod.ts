@@ -11,6 +11,7 @@ import {
     createProgress,
     formatLength,
     QueueManager,
+    QueueTrack,
     trackToString,
     ytThumb,
 } from "../../lavalink.ts";
@@ -97,7 +98,12 @@ export class MusicSlashModule extends SlashModule {
                 temp: true,
             });
 
-        await que.enqueue(search[0]);
+        await que.enqueue({
+            track: search[0].track,
+            info: search[0].info,
+            by: d.user ?? undefined,
+        });
+
         d.respond({
             content: `${isNew ? "Now playing" : "Enqueued"} ${trackToString(
                 search[0].info
@@ -244,6 +250,11 @@ export class MusicSlashModule extends SlashModule {
                             first.length
                         )}`
                     )
+                    .setDescription(
+                        `Requested by - ${
+                            que.tracks[0].by?.tag ?? "Deleted User"
+                        }${que.tracks[0].loop ? " (Loop)" : ""}`
+                    )
                     .setColor(0xff0000),
             ],
         });
@@ -265,7 +276,7 @@ export class MusicSlashModule extends SlashModule {
                     (e, i) =>
                         `${
                             i == 0 ? "**[NOW]**" : `${i < 10 ? " " : ""}${i}.`
-                        } - ${trackToString(e.info)}`
+                        } - ${trackToString(e.info, e.by, e.loop)}`
                 )
                 .join("\n"),
         });
