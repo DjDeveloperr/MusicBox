@@ -5,4 +5,5 @@ export const config = {
         port: 2333,
         password: "",
     },
+    mainGuild: "",
 };

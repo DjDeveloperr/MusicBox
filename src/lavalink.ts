@@ -52,6 +52,10 @@ export const createProgress = (c: number, m: number) => {
     )}\``;
 };
 
+export const ytThumb = (id: string) => {
+    return `https://img.youtube.com/vi/${id}/default.jpg`;
+};
+
 export interface TrackInfo {
     identifier: string;
     isSeekable: boolean;
@@ -86,9 +90,22 @@ export class Queue {
             if (this.tracks.length === 0)
                 return log("Track", "Started but not in queue");
             log("Track", `Start - ${this.tracks[0].info.title}`);
+            if (this.guild.id == config.mainGuild) {
+                this.guild.client.setPresence({
+                    name: this.tracks[0].info.title,
+                    type: "LISTENING",
+                });
+            }
         });
 
         this.player.on("end", () => {
+            if (this.guild.id == config.mainGuild) {
+                this.guild.client.setPresence({
+                    name: "Music",
+                    type: "LISTENING",
+                });
+            }
+
             this.current = null;
             const track = this.tracks.shift();
             log("Track", `End - ${track?.info.title}`);

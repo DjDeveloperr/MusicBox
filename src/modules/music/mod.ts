@@ -12,6 +12,7 @@ import {
     formatLength,
     QueueManager,
     trackToString,
+    ytThumb,
 } from "../../lavalink.ts";
 
 export class MusicSlashModule extends SlashModule {
@@ -231,6 +232,7 @@ export class MusicSlashModule extends SlashModule {
                     .setAuthor({ name: first.author })
                     .setTitle(first.title)
                     .setURL(first.uri)
+                    .setThumbnail({ url: ytThumb(first.identifier) })
                     .addField(
                         "Progress",
                         `\`${formatLength(
