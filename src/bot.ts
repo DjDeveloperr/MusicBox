@@ -1,4 +1,4 @@
-import { Client, event, slashModule, ClientOptions } from "../deps.ts";
+import { Client, event, ClientOptions } from "../deps.ts";
 import { MusicSlashModule } from "./modules/music/mod.ts";
 import { log } from "./util/log.ts";
 
