@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.83.0/http/server.ts";
-import { client } from "./mod.ts"
+import client from "./mod.ts"
 
 let port = 8080;
 try {
   let envport = Deno.env.get("PORT");
-  if (envport) port = envport;
+  if (envport) port = Number(envport);
 } catch(e) {}
 
 const server = serve({ hostname: "0.0.0.0", port });

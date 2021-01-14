@@ -11,7 +11,7 @@ let token = envperm && Deno.env.get("BOT_TOKEN") ? Deno.env.get("BOT_TOKEN") : c
 log("Bot", "Connecting...");
 const client = new MusicBoxBot();
 client.connect(
-    config.token,
+    token,
     Intents.create(
         ["GUILD_MEMBERS"],
         [

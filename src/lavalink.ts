@@ -14,7 +14,7 @@ import { log } from "./util/log.ts";
 let envperm = false;
 try { Deno.env.get("NOTHING"); envperm = true; } catch(e) { envperm = false; }
 
-let config: any;
+let config: any = {};
 if (envperm == true) {
   config.lavalink = {};
   config.lavalink.host = Deno.env.get("LAVALINK_HOST");
