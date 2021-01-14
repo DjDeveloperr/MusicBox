@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.83.0/http/server.ts";
-import { client } from "./mod.ts"
+import client from "./mod.ts"
 
 let port = 8080;
 try {
