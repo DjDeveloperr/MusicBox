@@ -7,6 +7,7 @@ let envperm = false;
 try { Deno.env.get("NOTHING"); envperm = true; } catch(e) { envperm = false; }
 
 let token = envperm && Deno.env.get("BOT_TOKEN") ? Deno.env.get("BOT_TOKEN") : config.token;
+log("Debug", "Using token: " + token);
 
 log("Bot", "Connecting...");
 const client = new MusicBoxBot();
