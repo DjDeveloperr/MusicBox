@@ -1,1 +1,1 @@
-web: deno run -A heroku.ts
+worker: deno run -A heroku.ts
