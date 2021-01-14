@@ -3,6 +3,11 @@ import { config } from "./src/config.ts";
 import { Intents, GatewayIntents } from "./deps.ts";
 import { log } from "./src/util/log.ts";
 
+let envperm = false;
+try { Deno.env.get("NOTHING"); envperm = true; } catch(e) { envperm = false; }
+
+let token = envperm && Deno.env.get("BOT_TOKEN") ? Deno.env.get("BOT_TOKEN") : config.token;
+
 log("Bot", "Connecting...");
 const client = new MusicBoxBot();
 client.connect(
