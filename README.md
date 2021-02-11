@@ -1,6 +1,6 @@
 # MusicBox
 
-MusicBox is a Lavalink-powered Discord Music Bot, based on Slash Commands. Made with [Harmony](https://github.com/harmony-org/harmony), uses Lavadeno for Lavalink interfacing.
+MusicBox is a Lavalink-powered Discord Music Bot, based on Slash Commands. Made with [Harmony](https://github.com/harmonyland/harmony), uses Lavadeno for Lavalink interfacing.
 
 ## Getting started
 
@@ -15,4 +15,4 @@ NOTE: Global Slash Commands can take upto an hour to come live on Client. Also d
 
 Read [LICENSE](LICENSE) for more info.
 
-Copyright 2020 @ DjDeveloperr
+Copyright 2021 @ DjDeveloperr
