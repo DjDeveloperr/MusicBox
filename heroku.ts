@@ -4,13 +4,13 @@ try {
     Deno.writeTextFileSync(
         "./src/config.ts",
         `export const config = {
-    token: "",
-    lavalink: {
-        host: "",
-        port: 2333,
-        password: "",
-    },
-    mainGuild: "",
+  token: "",
+  lavalink: {
+      host: "",
+      port: 2333,
+      password: "",
+  },
+  mainGuild: "",
 };
 `
     );
