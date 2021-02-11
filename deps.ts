@@ -1,9 +1,6 @@
-export * from "https://raw.githubusercontent.com/DjDeveloperr/harmony/slash/mod.ts";
-export {
-    Manager,
-    Player,
-} from "https://raw.githubusercontent.com/DjDeveloperr/lavaclient-deno/master/mod.ts";
+export * from "https://raw.githubusercontent.com/harmonyland/harmony/main/mod.ts";
+export { Manager, Player } from "https://deno.land/x/lavadeno@v2.1.0/mod.ts";
 export type {
     LoadTracksResponse,
     Track,
-} from "https://raw.githubusercontent.com/DjDeveloperr/lavaclient-deno/master/mod.ts";
+} from "https://deno.land/x/lavadeno@v2.1.0/mod.ts";

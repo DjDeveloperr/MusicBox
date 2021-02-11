@@ -32,6 +32,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async join(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined || !vs.channelID)
             return d.respond({
@@ -57,6 +58,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async leave(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
@@ -72,6 +74,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async play(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -114,6 +117,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async pause(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -145,6 +149,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async search(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
@@ -169,6 +174,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async skip(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -193,6 +199,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async resume(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -224,6 +231,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     nowplaying(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
             return d.respond({
@@ -263,6 +271,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     queue(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
             return d.respond({
@@ -285,6 +294,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     remove(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
             return d.respond({
@@ -312,6 +322,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async movetrack(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -386,6 +397,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async loopqueue(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -410,6 +422,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async replay(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -432,6 +445,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async volume(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -471,6 +485,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async seek(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -508,6 +523,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async forward(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
@@ -553,6 +569,7 @@ export class MusicSlashModule extends SlashModule {
 
     @slash()
     async rewind(d: Interaction) {
+        if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
