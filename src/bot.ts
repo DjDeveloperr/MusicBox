@@ -42,14 +42,5 @@ export class MusicBoxBot extends Client {
         });
 
         this.music.lava.init(this.user?.id as string);
-
-        this.music.lava.players.forEach(async (pl) => {
-            if (this.music.queues.has(pl.guild)) return;
-            if (pl.channel === undefined) return;
-            const guild = await this.guilds.get(pl.guild);
-            if (guild === undefined) return;
-            this.music.queues.add(guild);
-            log("Restore", `Restored player of guild: ${guild.id}`);
-        });
     }
 }

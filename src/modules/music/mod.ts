@@ -30,8 +30,7 @@ export class MusicSlashModule extends SlashModule {
         this.queues = new QueueManager(this);
     }
 
-    @slash()
-    async join(d: Interaction) {
+    @slash() async join(d: Interaction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined || !vs.channelID)
@@ -56,8 +55,7 @@ export class MusicSlashModule extends SlashModule {
         });
     }
 
-    @slash()
-    async leave(d: Interaction) {
+    @slash() async leave(d: Interaction) {
         if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined)
@@ -72,8 +70,7 @@ export class MusicSlashModule extends SlashModule {
         d.respond({ content: "Stopped playing music in this server." });
     }
 
-    @slash()
-    async play(d: Interaction) {
+    @slash() async play(d: Interaction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
@@ -115,8 +112,7 @@ export class MusicSlashModule extends SlashModule {
         });
     }
 
-    @slash()
-    async pause(d: Interaction) {
+    @slash() async pause(d: Interaction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
@@ -147,8 +143,7 @@ export class MusicSlashModule extends SlashModule {
         });
     }
 
-    @slash()
-    async search(d: Interaction) {
+    @slash() async search(d: Interaction) {
         if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined)
