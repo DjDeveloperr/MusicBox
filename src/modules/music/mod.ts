@@ -43,7 +43,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que !== undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm already in VC in this server.",
                 temp: true,
             });
@@ -60,7 +60,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -75,7 +75,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -94,7 +94,7 @@ export class MusicSlashModule extends SlashModule {
         const search = await que.search(query);
         if (search.length === 0)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "No track matching that query could be found.",
                 temp: true,
             });
@@ -117,7 +117,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -125,14 +125,14 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
 
         if (que.player.paused)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "Player is already paused!",
                 temp: true,
             });
@@ -148,7 +148,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content:
                     "I've not joined any VC in this server. Use play command to get started!",
                 temp: true,
@@ -173,7 +173,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -181,7 +181,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined || !que.tracks.length)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -198,7 +198,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -206,14 +206,14 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
 
         if (!que.player.paused)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "Player is not even paused!",
                 temp: true,
             });
@@ -230,7 +230,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -270,7 +270,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -293,7 +293,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -302,7 +302,7 @@ export class MusicSlashModule extends SlashModule {
         const track = que.tracks[pos];
         if (pos < 1 || !track)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: `Invalit track number, only between 1-${
                     que.tracks.length - 1
                 }.`,
@@ -321,7 +321,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -329,7 +329,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length < 2)
             return d.respond({
-                type: 3,
+                type: 4,
                 content:
                     "There must be at least 2 tracks enqueued to use this command.",
                 temp: true,
@@ -348,7 +348,7 @@ export class MusicSlashModule extends SlashModule {
             p2 > que.tracks.length - 1
         )
             return d.respond({
-                type: 3,
+                type: 4,
                 content:
                     "Track numbers can't be less than zero or more than queue length.",
                 temp: true,
@@ -356,13 +356,13 @@ export class MusicSlashModule extends SlashModule {
 
         if (p1 === p2 && pos2 === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "Track is already on top.",
                 temp: true,
             });
         else if (p1 === p2)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "Both track positions can't be same.",
                 temp: true,
             });
@@ -372,7 +372,7 @@ export class MusicSlashModule extends SlashModule {
 
         if (!t1 || !t2)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "One or both tracks could not be found.",
                 temp: true,
             });
@@ -396,7 +396,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -404,7 +404,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -421,7 +421,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -429,7 +429,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined || !que.tracks.length)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -444,7 +444,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -452,7 +452,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -467,7 +467,7 @@ export class MusicSlashModule extends SlashModule {
 
         if (newvol < 1 || newvol > 100)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "Volume should be between 1-100.",
                 temp: true,
             });
@@ -484,7 +484,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -492,7 +492,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -500,7 +500,7 @@ export class MusicSlashModule extends SlashModule {
         const len = parseLength(d.option<string>("pos"));
         if (!len || len < 0 || len > (que.tracks[0]?.info.length ?? 0))
             return d.respond({
-                type: 3,
+                type: 4,
                 content:
                     "Invalid seek position! Max track length is `" +
                     formatLength(que.tracks[0]?.info.length ?? 0) +
@@ -522,7 +522,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -530,7 +530,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -538,7 +538,7 @@ export class MusicSlashModule extends SlashModule {
         let len = parseLength(d.option<string>("pos"));
         if (!len)
             return d.respond({
-                type: 3,
+                type: 4,
                 temp: true,
                 content: `Invalid time format given! Format is \`<mins>:<secs>\`, like \`1:30\`.`,
             });
@@ -546,7 +546,7 @@ export class MusicSlashModule extends SlashModule {
 
         if (len < 0 || len > (que.tracks[0]?.info.length ?? 0))
             return d.respond({
-                type: 3,
+                type: 4,
                 content:
                     "Invalid forward time! Max track length is `" +
                     formatLength(que.tracks[0]?.info.length ?? 0) +
@@ -568,7 +568,7 @@ export class MusicSlashModule extends SlashModule {
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "You're not in any Voice Channel!",
                 temp: true,
             });
@@ -576,7 +576,7 @@ export class MusicSlashModule extends SlashModule {
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
-                type: 3,
+                type: 4,
                 content: "I'm not playing anything in this server.",
                 temp: true,
             });
@@ -584,7 +584,7 @@ export class MusicSlashModule extends SlashModule {
         let len = parseLength(d.option<string>("pos"));
         if (!len)
             return d.respond({
-                type: 3,
+                type: 4,
                 temp: true,
                 content: `Invalid time format given! Format is \`<mins>:<secs>\`, like \`1:30\`.`,
             });
@@ -600,7 +600,7 @@ export class MusicSlashModule extends SlashModule {
 
         if (len < 0 || len > (que.tracks[0]?.info.length ?? 0))
             return d.respond({
-                type: 3,
+                type: 4,
                 content:
                     "Invalid forward time! Max track length is `" +
                     formatLength(que.tracks[0]?.info.length ?? 0) +
