@@ -12,22 +12,33 @@ import type { MusicSlashModule } from "./modules/music/mod.ts";
 import { log } from "./util/log.ts";
 
 let envperm = false;
-try { Deno.env.get("NOTHING"); envperm = true; } catch(e) { envperm = false; }
+try {
+    Deno.env.get("NOTHING");
+    envperm = true;
+} catch (e) {
+    envperm = false;
+}
 
 let config: any = {};
 if (envperm == true) {
-  config.lavalink = {};
-  config.lavalink.host = Deno.env.get("LAVALINK_HOST");
-  config.lavalink.port = Deno.env.get("LAVALINK_PORT");
-  config.lavalink.password = Deno.env.get("LAVALINK_PASSWORD");
+    config.lavalink = {};
+    config.lavalink.host = Deno.env.get("LAVALINK_HOST");
+    config.lavalink.port = Deno.env.get("LAVALINK_PORT");
+    config.lavalink.password = Deno.env.get("LAVALINK_PASSWORD");
 }
 
-if (!config.lavalink.host || !config.lavalink.port || !config.lavalink.password) {
-  try {
-    config = await import("./config.ts").then(e => e.config);
-  } catch(e) {
-    throw new Error("Failed to retreive Lavalink credentials. Either create config.ts or add ENV vars.");
-  }
+if (
+    !config.lavalink.host ||
+    !config.lavalink.port ||
+    !config.lavalink.password
+) {
+    try {
+        config = await import("./config.ts").then((e) => e.config);
+    } catch (e) {
+        throw new Error(
+            "Failed to retreive Lavalink credentials. Either create config.ts or add ENV vars."
+        );
+    }
 }
 
 export const nodes = [

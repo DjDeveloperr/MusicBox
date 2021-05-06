@@ -5,6 +5,7 @@ import {
     Client,
     Manager,
     Embed,
+    SlashCommandInteraction,
 } from "../../../deps.ts";
 import {
     createManager,
@@ -12,7 +13,6 @@ import {
     formatLength,
     parseLength,
     QueueManager,
-    QueueTrack,
     trackToString,
     ytThumb,
 } from "../../lavalink.ts";
@@ -30,73 +30,68 @@ export class MusicSlashModule extends SlashModule {
         this.queues = new QueueManager(this);
     }
 
-    @slash() async join(d: Interaction) {
+    @slash() async join(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined || !vs.channelID)
-            return d.respond({
-                type: 3,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que !== undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm already in VC in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         const q = this.queues.add(d.guild);
-        await q.player.connect(vs.channelID, { selfDeaf: true });
-        d.respond({
-            content: `Joined \`${vs.channel?.name}\`!`,
-        });
+        q.player.connect(vs.channelID, { selfDeaf: true });
+        d.reply(`Joined \`${vs.channel?.name}\`!`);
     }
 
-    @slash() async leave(d: Interaction) {
+    @slash() async leave(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined)
             return d.respond({
                 type: 4,
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.player.destroy(true);
         this.queues.remove(d.guild);
-        d.respond({ content: "Stopped playing music in this server." });
+        d.reply("Stopped playing music in this server.");
     }
 
-    @slash() async play(d: Interaction) {
+    @slash() async play(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         let isNew = false;
         let que = this.queues.get(d.guild);
         if (que === undefined) {
             que = this.queues.add(d.guild);
-            await que.player.connect(vs.channelID as string, {
+            que.player.connect(vs.channelID as string, {
                 selfDeaf: true,
             });
             isNew = true;
         }
 
+        await d.defer();
+
         const query = d.option<string>("query");
         const search = await que.search(query);
         if (search.length === 0)
-            return d.respond({
-                type: 4,
+            return d.editResponse({
                 content: "No track matching that query could be found.",
-                temp: true,
             });
 
         await que.enqueue({
@@ -105,57 +100,52 @@ export class MusicSlashModule extends SlashModule {
             by: d.user ?? undefined,
         });
 
-        d.respond({
+        d.editResponse({
             content: `${isNew ? "Now playing" : "Enqueued"} ${trackToString(
                 search[0].info
             )}!`,
         });
     }
 
-    @slash() async pause(d: Interaction) {
+    @slash() async pause(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         if (que.player.paused)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "Player is already paused!",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.player.pause();
-        d.respond({
-            content: "Paused player!",
-        });
+        d.reply("Paused player!");
     }
 
-    @slash() async search(d: Interaction) {
+    @slash() async search(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content:
                     "I've not joined any VC in this server. Use play command to get started!",
-                temp: true,
+                ephemeral: true,
             });
 
+        await d.defer();
         const res = await que.search(d.option<string>("query"));
-        d.respond({
+        d.editResponse({
             content: `${
                 res.length === 0
                     ? "No results."
@@ -168,75 +158,65 @@ export class MusicSlashModule extends SlashModule {
     }
 
     @slash()
-    async skip(d: Interaction) {
+    async skip(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined || !que.tracks.length)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.skip();
-        return d.respond({
-            content: `Skipped track!`,
-        });
+        return d.reply(`Skipped current track!`);
     }
 
     @slash()
-    async resume(d: Interaction) {
+    async resume(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         if (!que.player.paused)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "Player is not even paused!",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.player.pause(false);
-        d.respond({
-            content: "Resumed player!",
-        });
+        d.reply("Resumed player!");
     }
 
     @slash()
-    nowplaying(d: Interaction) {
+    nowplaying(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         const first = que.tracks[0].info;
-        d.respond({
+        d.reply({
             embeds: [
                 new Embed()
                     .setAuthor({ name: first.author })
@@ -265,74 +245,69 @@ export class MusicSlashModule extends SlashModule {
     }
 
     @slash()
-    queue(d: Interaction) {
+    queue(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
-        d.respond({
-            content: que.tracks
+        d.reply(
+            que.tracks
                 .map(
                     (e, i) =>
                         `${
                             i == 0 ? "**[NOW]**" : `${i < 10 ? " " : ""}${i}.`
                         } - ${trackToString(e.info, e.by, e.loop)}`
                 )
-                .join("\n"),
-        });
+                .join("\n")
+        );
     }
 
     @slash()
-    remove(d: Interaction) {
+    remove(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length === 0)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         const pos = d.option<number>("position");
         const track = que.tracks[pos];
         if (pos < 1 || !track)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: `Invalit track number, only between 1-${
                     que.tracks.length - 1
                 }.`,
-                temp: true,
+                ephemeral: true,
             });
 
         que.tracks.splice(pos, 1);
-        d.respond({
-            content: `Deleted [${track.info.title}](<${track.info.uri}>) from queue!`,
-        });
+        d.reply(
+            `Deleted [${track.info.title}](<${track.info.uri}>) from queue!`
+        );
     }
 
     @slash()
-    async movetrack(d: Interaction) {
+    async movetrack(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined || que.tracks.length < 2)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content:
                     "There must be at least 2 tracks enqueued to use this command.",
-                temp: true,
+                ephemeral: true,
             });
 
         const pos = d.option<number>("track");
@@ -347,272 +322,227 @@ export class MusicSlashModule extends SlashModule {
             p1 > que.tracks.length - 1 ||
             p2 > que.tracks.length - 1
         )
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content:
                     "Track numbers can't be less than zero or more than queue length.",
-                temp: true,
+                ephemeral: true,
             });
 
         if (p1 === p2 && pos2 === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "Track is already on top.",
-                temp: true,
+                ephemeral: true,
             });
         else if (p1 === p2)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "Both track positions can't be same.",
-                temp: true,
+                ephemeral: true,
             });
 
         const t1 = que.tracks[p1];
         const t2 = que.tracks[p2];
 
         if (!t1 || !t2)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "One or both tracks could not be found.",
-                temp: true,
+                ephemeral: true,
             });
 
         que.tracks[p1] = t2;
         que.tracks[p2] = t1;
 
-        if (pos2 === undefined)
-            return d.respond({
-                content: "Successfully moved track to top.",
-            });
-        else
-            return d.respond({
-                content: "Successfully swapped tracks.",
-            });
+        if (pos2 === undefined) d.reply("Successfully moved track to top.");
+        else d.reply("Successfully swapped tracks.");
     }
 
     @slash()
-    async loopqueue(d: Interaction) {
+    async loopqueue(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         que.loopqueue = !que.loopqueue;
-        d.respond({
-            content: `Loopqueue ${que.loopqueue ? "enabled" : "disabled"}!`,
-        });
+        d.reply(`Loopqueue ${que.loopqueue ? "enabled" : "disabled"}!`);
     }
 
     @slash()
-    async replay(d: Interaction) {
+    async replay(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined || !que.tracks.length)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.player.seek(0);
-        d.respond({ content: "Replaying the track!" });
+        d.reply("Replaying the track!");
     }
 
     @slash()
-    async volume(d: Interaction) {
+    async volume(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         let newvol = d.option<number>("new");
         if (newvol === undefined)
-            return d.respond({
-                content: `Volume: ${que.player.volume ?? 100}/100`,
-            });
+            return d.reply(`Volume: ${que.player.volume ?? 100}/100`);
 
         if (typeof newvol === "string") newvol = Number(newvol);
 
         if (newvol < 1 || newvol > 100)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "Volume should be between 1-100.",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.player.setVolume(newvol);
-        d.respond({
-            content: `Set volume to ${newvol}!`,
-        });
+        d.reply(`Set volume to ${newvol}!`);
     }
 
     @slash()
-    async seek(d: Interaction) {
+    async seek(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         const len = parseLength(d.option<string>("pos"));
         if (!len || len < 0 || len > (que.tracks[0]?.info.length ?? 0))
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content:
                     "Invalid seek position! Max track length is `" +
                     formatLength(que.tracks[0]?.info.length ?? 0) +
                     "`.",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.player.seek(len);
-        d.respond({
-            content: `Successfully jumped to position: \`${formatLength(
-                len
-            )}\`!`,
-        });
+        d.reply(`Successfully jumped to position: \`${formatLength(len)}\`!`);
     }
 
     @slash()
-    async forward(d: Interaction) {
+    async forward(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         let len = parseLength(d.option<string>("pos"));
         if (!len)
-            return d.respond({
-                type: 4,
-                temp: true,
+            return d.reply({
+                ephemeral: true,
                 content: `Invalid time format given! Format is \`<mins>:<secs>\`, like \`1:30\`.`,
             });
         len = len + que.player.position;
 
         if (len < 0 || len > (que.tracks[0]?.info.length ?? 0))
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content:
                     "Invalid forward time! Max track length is `" +
                     formatLength(que.tracks[0]?.info.length ?? 0) +
                     "`.",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.player.seek(len);
-        d.respond({
-            content: `Successfully forwarded and jumped to position: \`${formatLength(
+        d.reply(
+            `Successfully forwarded and jumped to position: \`${formatLength(
                 len
-            )}\`!`,
-        });
+            )}\`!`
+        );
     }
 
     @slash()
-    async rewind(d: Interaction) {
+    async rewind(d: SlashCommandInteraction) {
         if (d.guild === undefined || d.member === undefined) return;
         const vs = await d.guild.voiceStates.get(d.user.id);
         if (vs === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "You're not in any Voice Channel!",
-                temp: true,
+                ephemeral: true,
             });
 
         const que = this.queues.get(d.guild);
         if (que === undefined)
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content: "I'm not playing anything in this server.",
-                temp: true,
+                ephemeral: true,
             });
 
         let len = parseLength(d.option<string>("pos"));
         if (!len)
-            return d.respond({
-                type: 4,
-                temp: true,
+            return d.reply({
+                ephemeral: true,
                 content: `Invalid time format given! Format is \`<mins>:<secs>\`, like \`1:30\`.`,
             });
 
         len = que.player.position - len;
 
-        // if (len < 0) len = 0;
-        // if (
-        //     que.tracks[0].info.length &&
-        //     len > (que.tracks[0]?.info.length ?? 0)
-        // )
-        //     len = que.tracks[0].info.length;
-
         if (len < 0 || len > (que.tracks[0]?.info.length ?? 0))
-            return d.respond({
-                type: 4,
+            return d.reply({
                 content:
                     "Invalid forward time! Max track length is `" +
                     formatLength(que.tracks[0]?.info.length ?? 0) +
                     "`.",
-                temp: true,
+                ephemeral: true,
             });
 
         await que.player.seek(len);
-        d.respond({
-            content: `Successfully rewinded and jumped to position: \`${formatLength(
+        d.reply(
+            `Successfully rewinded and jumped to position: \`${formatLength(
                 len
-            )}\`!`,
-        });
+            )}\`!`
+        );
     }
 }
