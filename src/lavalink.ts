@@ -53,7 +53,7 @@ export const nodes = [
 export const createManager = (client: Client) => {
     const mg = new Manager(nodes, {
         send(id, payload) {
-            client.gateway?.send(payload);
+            client.shards.get(id)?.send(payload);
         },
     });
 
