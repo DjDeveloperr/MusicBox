@@ -1,4 +1,4 @@
-name: Run in Deno
+name: ci
 
 on:
     push:
@@ -7,21 +7,17 @@ on:
         branches: [main]
 
 jobs:
-    test:
+    check:
         runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                deno: ["v1.x", "nightly"]
 
         steps:
             - name: Setup repo
               uses: actions/checkout@v2
 
             - name: Setup Deno
-              uses: denolib/setup-deno@v2.3.0
+              uses: denoland/setup-deno@v1
               with:
-                  deno-version: ${{ matrix.deno }} # tests across multiple Deno versions
+                  deno-version: "v1.x"
 
-            - name: Test
+            - name: Type check
               run: deno cache mod.ts

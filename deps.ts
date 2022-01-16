@@ -1,6 +1,3 @@
-export * from "../Harmony/mod.ts";
-export { Manager, Player } from "https://deno.land/x/lavadeno@v2.1.0/mod.ts";
-export type {
-    LoadTracksResponse,
-    Track,
-} from "https://deno.land/x/lavadeno@v2.1.0/mod.ts";
+export * from "https://code.harmony.rocks/v2.5.0";
+export * as lava from "https://deno.land/x/lavadeno@3.2.2/mod.ts";
+export { Lavalink } from "https://deno.land/x/lavadeno@3.2.2/deps.ts";
